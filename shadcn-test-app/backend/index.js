@@ -103,6 +103,19 @@ app.get('/api/fetch-data', async (req, res) => {
   }
 })
 
+
+app.get('/api/search/:search', async (req, res) => {
+  const search = req.params.search.trim();
+  const loggedIn = req.cookies.loggedIn; 
+
+  const result = await db.query("SELECT id, username FROM users WHERE username ILIKE $1 AND id!=$2", [`%${search}%`, loggedIn])     
+
+  return res.json({
+    success: true,
+    users: result.rows
+  })
+})
+
 app.listen(8000, () => {
   console.log('listening on http://localhost:8000')
 })

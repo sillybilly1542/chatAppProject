@@ -1,9 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { headers } from 'next/headers'
 import NavbarRight from './NavbarRight'
-
 
 export default async function Navbar(){
   const headersList = await headers();
@@ -13,18 +11,19 @@ export default async function Navbar(){
 
   const isAuthPage = authPages.includes(pathname);
 
-  return(<nav className="flex items-center h-14">
+  return(<nav className={`flex items-center h-14}`}>
     <Link href="/">
       <Image 
         src={"/messageIcon.png"} 
         alt="message icon" 
         width={50} 
         height={50}
-        className='h-[50px] w-[50px] cursor-pointer'
+        className='h-[50px] w-[50px] cursor-pointer select-none'
       />
     </Link>
     {/* part aligned to the right */}
-    <NavbarRight />
+    {isAuthPage ? <NavbarRight /> : <></>}
+
 
   </nav>)
 }
