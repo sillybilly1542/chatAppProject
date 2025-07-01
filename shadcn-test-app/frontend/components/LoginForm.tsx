@@ -80,7 +80,7 @@ export default function RegisterForm() {
           )}
         </AnimatePresence>
 
-        <Button type="submit" className="w-full cursor-pointer">
+        <Button type="submit" className="w-full">
           Log In 
         </Button>
       </form>

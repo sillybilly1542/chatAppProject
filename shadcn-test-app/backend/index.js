@@ -60,7 +60,6 @@ app.post('/api/register', async (req, res) => {
   }
 })
 
-
 app.post('/api/login', async (req, res) => {
   const {email, password} = req.body;
   
@@ -103,17 +102,49 @@ app.get('/api/fetch-data', async (req, res) => {
   }
 })
 
-
 app.get('/api/search/:search', async (req, res) => {
   const search = req.params.search.trim();
   const loggedIn = req.cookies.loggedIn; 
 
-  const result = await db.query("SELECT id, username FROM users WHERE username ILIKE $1 AND id!=$2", [`%${search}%`, loggedIn])     
+  const result = await db.query(`
+SELECT 
+  u.id, 
+  u.username,
+  CASE 
+    WHEN pr1.sender_id = $2 THEN 'sent'
+    WHEN pr2.receiver_id = $2 THEN 'received'
+    WHEN $2 = ANY(u.friends) THEN 'friends'
+    ELSE 'none'
+  END AS status
+FROM users u
+LEFT JOIN pending_requests pr1 ON pr1.receiver_id = u.id AND pr1.sender_id = $2
+LEFT JOIN pending_requests pr2 ON pr2.sender_id = u.id AND pr2.receiver_id = $2
+WHERE u.username ILIKE $1 AND u.id != $2 AND similarity(u.username, $1) > 0.3
+ORDER BY similarity(u.username, $1) DESC
+LIMIT 20
+`, [`%${search}%`, loggedIn])
 
   return res.json({
     success: true,
     users: result.rows
   })
+})
+
+app.post('/api/create-request', async (req, res) => {
+  const id1 = Number(req.cookies.loggedIn)
+  const id2 = req.body.id;
+
+  await db.query("INSERT INTO pending_requests VALUES ($1, $2)", [id1, id2])
+  res.json({ success: true });
+})
+
+app.post('/api/create-friendship', async (req, res) => {
+  const id1 = Number(req.cookies.loggedIn)
+  const id2 = req.body.id
+
+  await db.query(`UPDATE users SET friends = COALESCE(friends, '{}') || $1 WHERE id = $2`, [id1, id2])
+  await db.query(`UPDATE users SET friends = COALESCE(friends, '{}') || $2 WHERE id = $1`, [id1, id2])
+  res.json({ success: true });
 })
 
 app.listen(8000, () => {

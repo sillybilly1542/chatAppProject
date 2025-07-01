@@ -14,7 +14,7 @@ export default function Page(){
         Made By Michael
       </h2>
       <Link href='/register'>
-        <Button className="h-10 w-32 block mt-4 cursor-pointer mx-auto">Get Started</Button>
+        <Button className="h-10 w-32 block mt-4 mx-auto">Get Started</Button>
       </Link>
     </div>
     <Footer /> 

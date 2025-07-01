@@ -17,7 +17,7 @@ export default function NavbarRight(){
         <Link href="/login">
           <Button
             variant="ghost"
-            className='cursor-pointer mr-2'
+            className='mr-2'
           >
             Log In
           </Button>
@@ -25,7 +25,7 @@ export default function NavbarRight(){
         <Link href="/register">
           <Button
             variant='default'
-            className='cursor-pointer mr-2'
+            className='mr-2'
           >
             Get Started        
           </Button>

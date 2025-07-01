@@ -10,7 +10,6 @@ import axios from 'axios'
 import React, {useState} from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
-import {FiEye, FiEyeOff} from 'react-icons/fi'
 
 const registerFormSchema = z.object({
   username: z.string()
@@ -109,7 +108,7 @@ export default function RegisterForm() {
             )}
           </AnimatePresence>
 
-        <Button type="submit" className="w-full cursor-pointer">
+        <Button type="submit" className="w-full">
           Sign Up
         </Button>
       </form>
