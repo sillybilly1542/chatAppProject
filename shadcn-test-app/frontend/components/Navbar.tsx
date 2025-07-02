@@ -1,16 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { headers } from 'next/headers'
-import AuthNavbarRight from './AuthNavbarRight'
+import NavbarRight from './NavbarRight'
 
 export default async function Navbar(){
-  const headersList = await headers();
-  const pathname = headersList.get('x-next-url') || ('/')
-
-  const authPages = ['/', '/register', '/login', '/404']
-
-  const isAuthPage = authPages.includes(pathname);
-
   return(<nav className={`flex items-center h-14}`}>
     <Link href="/"> 
       <Image 
@@ -22,8 +14,7 @@ export default async function Navbar(){
       />
     </Link>
     {/* part aligned to the right */}
-    {isAuthPage ? <AuthNavbarRight /> : <></>}
-
+    <NavbarRight />
 
   </nav>)
 }

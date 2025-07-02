@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { usePathname } from 'next/navigation'
-
+import axios from 'axios'
+import { redirect } from 'next/navigation'
 
 export default function NavbarRight(){
   const pathname = usePathname();
@@ -11,6 +12,15 @@ export default function NavbarRight(){
   const authPages = ['/', '/login', '/register', '/404']
 
   const isAuthPage = authPages.includes(pathname)
+
+  const logout = async () => {
+    const result = await axios.get('http://localhost:8000/api/logout', {withCredentials: true})
+
+    if(result.data.success){
+      redirect('/')
+    }
+  }
+
   return(
     <>
       {isAuthPage ? <div className="ml-auto">
@@ -32,7 +42,7 @@ export default function NavbarRight(){
         </Link>
       </div> : 
       <>
-      
+        <Button className='ml-auto mr-2' onClick={logout}>Log Out</Button>      
       </>}
     </> 
   )

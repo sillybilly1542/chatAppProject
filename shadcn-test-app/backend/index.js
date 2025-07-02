@@ -138,14 +138,63 @@ app.post('/api/create-request', async (req, res) => {
   res.json({ success: true });
 })
 
+
 app.post('/api/create-friendship', async (req, res) => {
   const id1 = Number(req.cookies.loggedIn)
-  const id2 = req.body.id
+  const id2 = Number(req.body.id)
 
-  await db.query(`UPDATE users SET friends = COALESCE(friends, '{}') || $1 WHERE id = $2`, [id1, id2])
-  await db.query(`UPDATE users SET friends = COALESCE(friends, '{}') || $2 WHERE id = $1`, [id1, id2])
+  await db.query(
+    `UPDATE users SET friends = COALESCE(friends, '{}')::int[] || $1::int WHERE id = $2`,
+    [id2, id1]
+  )
+
+  await db.query(
+    `UPDATE users SET friends = COALESCE(friends, '{}')::int[] || $1::int WHERE id = $2`,
+    [id1, id2]
+  )
+
+  await db.query(
+    `DELETE FROM pending_requests WHERE sender_id = $1 AND receiver_id = $2`, [id2, id1]
+  )
   res.json({ success: true });
 })
+
+app.get('/api/logout', (_, res) => {
+  res.clearCookie('loggedIn', {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 3600000, // 7 days
+  })
+  
+  return res.json({success: true})
+})
+
+app.get('/api/fetch-outgoing', async (req, res) => {
+  const id = Number(req.cookies.loggedIn);
+
+  const result = await db.query(`
+    SELECT users.id, users.username
+    FROM pending_requests
+    JOIN users ON pending_requests.receiver_id = users.id
+    WHERE pending_requests.sender_id = $1
+  `, [id])
+
+  res.json({
+    success: true,
+    data: result.rows
+  })
+})
+
+app.delete('/api/cancel-request/:id2', async (req, res) => {
+  const sender = Number(req.cookies.loggedIn)
+  const receiver = Number(req.params.id2)
+
+  await db.query('DELETE FROM pending_requests WHERE sender_id = $1 AND receiver_id = $2', [sender, receiver])
+
+  res.json({success: true})
+})
+
 
 app.listen(8000, () => {
   console.log('listening on http://localhost:8000')
